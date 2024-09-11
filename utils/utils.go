@@ -10,6 +10,10 @@ type Ordered interface {
 	~int | ~int8 | ~int16 | ~int32 | ~int64 | ~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~float32 | ~float64 | ~string
 }
 
+type Char interface {
+	~string | ~rune | ~byte
+}
+
 // For Read to work, go into the dir of the file to run the go run . command
 func Read() []string {
 	data, err := os.ReadFile("input.txt")
@@ -35,8 +39,16 @@ func Contains[T comparable](value T, slice []T) bool {
 	return false
 }
 
-func IsDigit(char rune) bool {
-	return 48 <= char && char <= 57
+func IsDigit[T Char](char T) bool {
+	switch v := any(char).(type) {
+	case rune:
+		return '0' <= v && v <= '9'
+	case string:
+		return len(v) == 1 && '0' <= rune(v[0]) && rune(v[0]) <= '9'
+	case byte:
+		return '0' <= v && v <= '9'
+	}
+	return false
 }
 
 func Max[T Ordered](a T, b T) T {
